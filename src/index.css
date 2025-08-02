@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hide scrollbar completely for sidebar */
+.sidebar-scrollbar {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE and Edge */
+}
+
+.sidebar-scrollbar::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari and Opera */
+}
+
+/* Alternative approach - very transparent scrollbar */
+.scrollbar-thin {
+  scrollbar-width: thin !important;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px !important;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent !important;
+  border-radius: 2px !important;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: transparent !important;
+  border-radius: 2px !important;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Dark theme scrollbar */
+.dark .scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: transparent !important;
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Specific sidebar scrollbar styles */
+.flex-1.overflow-y-auto.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.flex-1.overflow-y-auto.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: transparent !important;
+}
+
+.flex-1.overflow-y-auto.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .flex-1.overflow-y-auto.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Left-side scrollbar for sidebar */
+.sidebar-scrollbar {
+  direction: rtl;
+}
+
+.sidebar-scrollbar > * {
+  direction: ltr;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 0 !important;
+  display: none !important;
+}
+
+/* Force hide scrollbar for sidebar */
+.flex-1.overflow-y-auto.scrollbar-thin.sidebar-scrollbar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.flex-1.overflow-y-auto.scrollbar-thin.sidebar-scrollbar::-webkit-scrollbar {
+  width: 0 !important;
+  display: none !important;
+}
+
+/* Additional aggressive hiding for sidebar */
+div[class*="flex-1"][class*="overflow-y-auto"][class*="scrollbar-thin"][class*="sidebar-scrollbar"] {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+div[class*="flex-1"][class*="overflow-y-auto"][class*="scrollbar-thin"][class*="sidebar-scrollbar"]::-webkit-scrollbar {
+  width: 0 !important;
+  display: none !important;
+}
+
+/* Hide scrollbar for any element with sidebar-scrollbar class */
+*[class*="sidebar-scrollbar"] {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+*[class*="sidebar-scrollbar"]::-webkit-scrollbar {
+  width: 0 !important;
+  display: none !important;
+}
