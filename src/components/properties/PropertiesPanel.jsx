@@ -98,7 +98,7 @@ export default function PropertiesPanel() {
           <input
             type="text"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.chartTitle || "Sample Chart"}
+            value={widget.chartTitle || ""}
             onChange={(e) => updateWidgetData("chartTitle", e.target.value)}
             placeholder="Enter chart title..."
           />
@@ -184,7 +184,7 @@ export default function PropertiesPanel() {
           <input
             type="text"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.chartTitle || "Sample Area Chart"}
+            value={widget.chartTitle || ""}
             onChange={(e) => updateWidgetData("chartTitle", e.target.value)}
             placeholder="Enter chart title..."
           />
@@ -229,7 +229,7 @@ export default function PropertiesPanel() {
           <input
             type="text"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.title || "Progress"}
+            value={widget.title || ""}
             onChange={(e) => updateWidgetData("title", e.target.value)}
             placeholder="Enter title..."
           />
@@ -274,7 +274,7 @@ export default function PropertiesPanel() {
           <input
             type="text"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.title || "Image Widget"}
+            value={widget.title || ""}
             onChange={(e) => updateWidgetData("title", e.target.value)}
             placeholder="Enter title..."
           />
@@ -310,7 +310,7 @@ export default function PropertiesPanel() {
           <input
             type="text"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.title || "Counter"}
+            value={widget.title || ""}
             onChange={(e) => updateWidgetData("title", e.target.value)}
             placeholder="Enter title..."
           />
@@ -366,7 +366,7 @@ export default function PropertiesPanel() {
           <input
             type="text"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.title || "Calendar"}
+            value={widget.title || ""}
             onChange={(e) => updateWidgetData("title", e.target.value)}
             placeholder="Enter title..."
           />
@@ -392,7 +392,7 @@ export default function PropertiesPanel() {
           <input
             type="text"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.tableTitle || "Sample Table"}
+            value={widget.tableTitle || ""}
             onChange={(e) => updateWidgetData("tableTitle", e.target.value)}
             placeholder="Enter table title..."
           />
@@ -433,7 +433,7 @@ export default function PropertiesPanel() {
           <input
             type="text"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.content || "Click Me"}
+            value={widget.content || ""}
             onChange={(e) => updateWidgetData("content", e.target.value)}
             placeholder="Enter button text..."
           />
@@ -466,7 +466,7 @@ export default function PropertiesPanel() {
           <input
             type="text"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.heading || "New Heading"}
+            value={widget.heading || ""}
             onChange={(e) => updateWidgetData("heading", e.target.value)}
             placeholder="Enter heading text..."
           />
@@ -497,7 +497,7 @@ export default function PropertiesPanel() {
           <input
             type="text"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.title || "Progress Bar"}
+            value={widget.title || ""}
             onChange={(e) => updateWidgetData("title", e.target.value)}
             placeholder="Enter title..."
           />
@@ -542,7 +542,7 @@ export default function PropertiesPanel() {
           <input
             type="text"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.title || "Video Widget"}
+            value={widget.title || ""}
             onChange={(e) => updateWidgetData("title", e.target.value)}
             placeholder="Enter title..."
           />
@@ -571,7 +571,7 @@ export default function PropertiesPanel() {
           <input
             type="text"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.title || "Embed Widget"}
+            value={widget.title || ""}
             onChange={(e) => updateWidgetData("title", e.target.value)}
             placeholder="Enter title..."
           />
@@ -600,7 +600,7 @@ export default function PropertiesPanel() {
           <input
             type="text"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.title || "Clock"}
+            value={widget.title || ""}
             onChange={(e) => updateWidgetData("title", e.target.value)}
             placeholder="Enter title..."
           />
@@ -627,7 +627,7 @@ export default function PropertiesPanel() {
           <input
             type="text"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.title || "Weather"}
+            value={widget.title || ""}
             onChange={(e) => updateWidgetData("title", e.target.value)}
             placeholder="Enter title..."
           />
@@ -656,7 +656,7 @@ export default function PropertiesPanel() {
           <input
             type="text"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.title || "Toggle Switch"}
+            value={widget.title || ""}
             onChange={(e) => updateWidgetData("title", e.target.value)}
             placeholder="Enter title..."
           />
@@ -675,7 +675,7 @@ export default function PropertiesPanel() {
           <input
             type="text"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.title || "Slider"}
+            value={widget.title || ""}
             onChange={(e) => updateWidgetData("title", e.target.value)}
             placeholder="Enter title..."
           />

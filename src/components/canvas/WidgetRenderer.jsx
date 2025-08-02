@@ -48,7 +48,7 @@ function ImageWidget({ widget }) {
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full transition-colors duration-300 flex flex-col">
       <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-gray-200 flex-shrink-0">
-        {widget.title || "Image Widget"}
+        {widget.title || ""}
       </h3>
       <div className="flex-1 relative overflow-hidden rounded">
         {imageLoading && (
@@ -99,7 +99,7 @@ function TextWidget({ widget }) {
 
   const handleBlur = () => {
     setIsEditing(false);
-    // Update the widget content
+    // Update the widget content (allow empty strings)
     dispatch({
       type: "UPDATE_WIDGET",
       payload: { id: widget.id, data: { content: localContent } },
@@ -114,6 +114,11 @@ function TextWidget({ widget }) {
     if (e.key === "Escape") {
       setIsEditing(false);
       setLocalContent(widget.content || "");
+    }
+    // Allow Ctrl+A to select all text
+    if (e.key === "a" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      e.target.select();
     }
   };
 
@@ -137,7 +142,9 @@ function TextWidget({ widget }) {
           onClick={handleClick}
           className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed cursor-text min-h-[100px]"
         >
-          {localContent || (
+          {localContent ? (
+            <div style={{ whiteSpace: 'pre-wrap' }}>{localContent}</div>
+          ) : (
             <span className="text-gray-400 dark:text-gray-500 italic">
               Enter the text here
             </span>
@@ -165,7 +172,7 @@ function HeadingWidget({ widget }) {
 
   const handleBlur = () => {
     setIsEditing(false);
-    // Update the widget heading
+    // Update the widget heading (allow empty strings)
     dispatch({
       type: "UPDATE_WIDGET",
       payload: { id: widget.id, data: { heading: localHeading } },
@@ -180,6 +187,11 @@ function HeadingWidget({ widget }) {
     if (e.key === "Escape") {
       setIsEditing(false);
       setLocalHeading(widget.heading || "");
+    }
+    // Allow Ctrl+A to select all text
+    if (e.key === "a" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      e.target.select();
     }
   };
 
@@ -203,13 +215,112 @@ function HeadingWidget({ widget }) {
           onClick={handleClick}
           className="text-gray-800 dark:text-gray-200 text-center font-bold cursor-text"
         >
-          {localHeading || (
+          {localHeading ? (
+            localHeading
+          ) : (
             <span className="text-gray-400 dark:text-gray-500 italic">
               Click to edit heading
             </span>
           )}
         </HeadingTag>
       )}
+    </div>
+  );
+}
+
+// Separate component for toggle widget to maintain state
+function ToggleWidget({ widget }) {
+  const [toggleValue, setToggleValue] = useState(widget.value || false);
+  const { dispatch } = useDashboard();
+  
+  // Sync with widget value when it changes
+  useEffect(() => {
+    setToggleValue(widget.value || false);
+  }, [widget.value]);
+
+  const handleToggle = () => {
+    const newValue = !toggleValue;
+    setToggleValue(newValue);
+    // Update the widget value
+    dispatch({
+      type: "UPDATE_WIDGET",
+      payload: { id: widget.id, data: { value: newValue } },
+    });
+  };
+
+  return (
+    <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full flex flex-col items-center justify-center transition-colors duration-300">
+      <h3 className="font-bold text-lg mb-6 text-gray-800 dark:text-gray-200 text-center">
+        {widget.title || ""}
+      </h3>
+      <div className="flex flex-col items-center space-y-4">
+        <button
+          onClick={handleToggle}
+          className={`relative inline-flex h-12 w-20 items-center rounded-full transition-all duration-300 ease-in-out shadow-lg ${
+            toggleValue 
+              ? 'bg-gradient-to-r from-blue-500 to-blue-600 shadow-blue-500/50' 
+              : 'bg-gradient-to-r from-gray-300 to-gray-400 dark:from-gray-600 dark:to-gray-700'
+          }`}
+        >
+          <span
+            className={`inline-block h-10 w-10 transform rounded-full bg-white shadow-md transition-all duration-300 ease-in-out ${
+              toggleValue ? 'translate-x-8' : 'translate-x-1'
+            }`}
+          ></span>
+        </button>
+        <div className={`text-lg font-semibold transition-colors duration-300 ${
+          toggleValue 
+            ? 'text-blue-600 dark:text-blue-400' 
+            : 'text-gray-500 dark:text-gray-400'
+        }`}>
+          {toggleValue ? "ON" : "OFF"}
+        </div>
+        <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
+          Click to toggle
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Separate component for slider widget to maintain state
+function SliderWidget({ widget }) {
+  const [sliderValue, setSliderValue] = useState(widget.value || 50);
+  const { dispatch } = useDashboard();
+  
+  // Sync with widget value when it changes
+  useEffect(() => {
+    setSliderValue(widget.value || 50);
+  }, [widget.value]);
+
+  const handleSliderChange = (e) => {
+    const newValue = parseInt(e.target.value);
+    setSliderValue(newValue);
+    // Update the widget value
+    dispatch({
+      type: "UPDATE_WIDGET",
+      payload: { id: widget.id, data: { value: newValue } },
+    });
+  };
+
+  return (
+    <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full flex flex-col justify-center transition-colors duration-300">
+      <h3 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-200 text-center">
+        {widget.title || ""}
+      </h3>
+      <div className="px-4">
+        <input
+          type="range"
+          min={widget.min || 0}
+          max={widget.max || 100}
+          value={sliderValue}
+          onChange={handleSliderChange}
+          className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+        />
+        <div className="text-center mt-2 text-sm text-gray-600 dark:text-gray-400">
+          Value: {sliderValue}
+        </div>
+      </div>
     </div>
   );
 }
@@ -280,8 +391,8 @@ export default function WidgetRenderer({ widget }) {
         plugins: {
           legend: { position: "top" },
           title: {
-            display: true,
-            text: widget.chartTitle || "Sample Bar Chart",
+            display: widget.chartTitle ? true : false,
+            text: widget.chartTitle || "",
           },
         },
         maintainAspectRatio: false,
@@ -322,8 +433,8 @@ export default function WidgetRenderer({ widget }) {
         plugins: {
           legend: { position: "top" },
           title: {
-            display: true,
-            text: widget.chartTitle || "Sample Line Chart",
+            display: widget.chartTitle ? true : false,
+            text: widget.chartTitle || "",
           },
         },
         maintainAspectRatio: false,
@@ -372,8 +483,8 @@ export default function WidgetRenderer({ widget }) {
         plugins: {
           legend: { position: "top" },
           title: {
-            display: true,
-            text: widget.chartTitle || "Sample Pie Chart",
+            display: widget.chartTitle ? true : false,
+            text: widget.chartTitle || "",
           },
         },
         maintainAspectRatio: false,
@@ -405,9 +516,9 @@ export default function WidgetRenderer({ widget }) {
       const areaData = areaChartData || defaultAreaData;
 
       return (
-        <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-2 w-full h-full transition-colors duration-300">
-          <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-gray-200 text-center">
-            {widget.chartTitle || "Sample Area Chart"}
+        <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full transition-colors duration-300">
+          <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-gray-200">
+            {widget.title || ""}
           </h3>
           <div style={{ width: "100%", height: "calc(100% - 40px)" }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -429,7 +540,7 @@ export default function WidgetRenderer({ widget }) {
       return (
         <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full flex flex-col items-center justify-center transition-colors duration-300">
           <h3 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-200 text-center">
-            {widget.title || "Progress"}
+            {widget.title || ""}
           </h3>
           <div className="relative w-24 h-24">
             <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
@@ -476,7 +587,7 @@ export default function WidgetRenderer({ widget }) {
       return (
         <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full flex flex-col items-center justify-center transition-colors duration-300">
           <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-gray-200 text-center">
-            {widget.title || "Counter"}
+            {widget.title || ""}
           </h3>
           <div className="text-center">
             <div className="text-3xl font-bold" style={{ color: widget.color || "#10B981" }}>
@@ -503,7 +614,7 @@ export default function WidgetRenderer({ widget }) {
       return (
         <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full transition-colors duration-300">
           <h3 className="font-bold text-lg mb-3 text-gray-800 dark:text-gray-200">
-            {widget.title || "Calendar"}
+            {widget.title || ""}
           </h3>
           <div className="text-sm text-gray-600 dark:text-gray-400 mb-3 text-center">
             {currentDay} {currentMonth} {currentYear}
@@ -558,7 +669,7 @@ export default function WidgetRenderer({ widget }) {
       return (
         <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full overflow-auto transition-colors duration-300">
           <h3 className="font-bold text-lg mb-3 text-gray-800 dark:text-gray-200">
-            {widget.tableTitle || "Sample Table"}
+            {widget.tableTitle || ""}
           </h3>
           <div className="overflow-x-auto">
             <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-600">
@@ -619,7 +730,7 @@ export default function WidgetRenderer({ widget }) {
               }
             }}
           >
-            {widget.content || "Click Me"}
+            {widget.content || ""}
           </button>
         </div>
       );
@@ -630,7 +741,7 @@ export default function WidgetRenderer({ widget }) {
       return (
         <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full flex flex-col justify-center transition-colors duration-300">
           <h3 className="font-bold text-lg mb-3 text-gray-800 dark:text-gray-200 text-center">
-            {widget.title || "Progress Bar"}
+            {widget.title || ""}
           </h3>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 mb-2">
             <div
@@ -650,7 +761,7 @@ export default function WidgetRenderer({ widget }) {
       return (
         <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full transition-colors duration-300">
           <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-gray-200">
-            {widget.title || "Video Widget"}
+            {widget.title || ""}
           </h3>
           <div className="flex-1 relative">
             <iframe
@@ -668,7 +779,7 @@ export default function WidgetRenderer({ widget }) {
       return (
         <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full transition-colors duration-300">
           <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-gray-200">
-            {widget.title || "Embed Widget"}
+            {widget.title || ""}
           </h3>
           <div className="flex-1 relative">
             <iframe
@@ -720,7 +831,7 @@ export default function WidgetRenderer({ widget }) {
       return (
         <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full flex flex-col items-center justify-center transition-colors duration-300">
           <h3 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-200 text-center">
-            {widget.title || "Digital Clock"}
+            {widget.title || ""}
           </h3>
           <div className="text-center space-y-3">
             {/* Time */}
@@ -748,7 +859,7 @@ export default function WidgetRenderer({ widget }) {
       return (
         <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full transition-colors duration-300">
           <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-gray-200">
-            {widget.title || "Weather"}
+            {widget.title || ""}
           </h3>
           <div className="text-center">
             <div className="text-4xl mb-2">🌤️</div>
@@ -762,72 +873,9 @@ export default function WidgetRenderer({ widget }) {
         </div>
       );
     case "toggle":
-      const [toggleValue, setToggleValue] = useState(widget.value || false);
-      
-      const handleToggle = () => {
-        setToggleValue(!toggleValue);
-      };
-
-      return (
-        <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full flex flex-col items-center justify-center transition-colors duration-300">
-          <h3 className="font-bold text-lg mb-6 text-gray-800 dark:text-gray-200 text-center">
-            {widget.title || "Toggle Switch"}
-          </h3>
-          <div className="flex flex-col items-center space-y-4">
-            <button
-              onClick={handleToggle}
-              className={`relative inline-flex h-12 w-20 items-center rounded-full transition-all duration-300 ease-in-out shadow-lg ${
-                toggleValue 
-                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 shadow-blue-500/50' 
-                  : 'bg-gradient-to-r from-gray-300 to-gray-400 dark:from-gray-600 dark:to-gray-700'
-              }`}
-            >
-              <span
-                className={`inline-block h-10 w-10 transform rounded-full bg-white shadow-md transition-all duration-300 ease-in-out ${
-                  toggleValue ? 'translate-x-8' : 'translate-x-1'
-                }`}
-              ></span>
-            </button>
-            <div className={`text-lg font-semibold transition-colors duration-300 ${
-              toggleValue 
-                ? 'text-blue-600 dark:text-blue-400' 
-                : 'text-gray-500 dark:text-gray-400'
-            }`}>
-              {toggleValue ? "ON" : "OFF"}
-            </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-              Click to toggle
-            </div>
-          </div>
-        </div>
-      );
+      return <ToggleWidget widget={widget} />;
     case "slider":
-      const [sliderValue, setSliderValue] = useState(widget.value || 50);
-      
-      const handleSliderChange = (e) => {
-        setSliderValue(parseInt(e.target.value));
-      };
-
-      return (
-        <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full flex flex-col justify-center transition-colors duration-300">
-          <h3 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-200 text-center">
-            {widget.title || "Slider"}
-          </h3>
-          <div className="px-4">
-            <input
-              type="range"
-              min={widget.min || 0}
-              max={widget.max || 100}
-              value={sliderValue}
-              onChange={handleSliderChange}
-              className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-            />
-            <div className="text-center mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Value: {sliderValue}
-            </div>
-          </div>
-        </div>
-      );
+      return <SliderWidget widget={widget} />;
     default:
       return null;
   }
