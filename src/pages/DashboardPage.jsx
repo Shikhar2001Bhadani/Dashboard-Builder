@@ -9,7 +9,7 @@ import { getCurrentThemeColors } from "../utils/themeUtils.js";
 
 export default function DashboardPage({ dashboardId }) {
   const { state } = useDashboard();
-  const themeColors = getCurrentThemeColors(state.seasonalTheme);
+  const themeColors = getCurrentThemeColors(state.seasonalTheme, state.theme === "dark");
 
   // Show loading screen while dashboard is loading
   if (state.isLoading) {

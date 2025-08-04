@@ -200,8 +200,8 @@ export const DashboardProvider = ({ children }) => {
 
   // Apply seasonal theme when it changes
   useEffect(() => {
-    applySeasonalTheme(state.seasonalTheme);
-  }, [state.seasonalTheme]);
+    applySeasonalTheme(state.seasonalTheme, state.theme === "dark");
+  }, [state.seasonalTheme, state.theme]);
 
   return (
     <DashboardContext.Provider value={{ state, dispatch }}>

@@ -5,7 +5,7 @@ import { useCallback, useState } from "react";
 
 export default function PropertiesPanel() {
   const { state, dispatch } = useDashboard();
-  const themeColors = getCurrentThemeColors(state.seasonalTheme);
+  const themeColors = getCurrentThemeColors(state.seasonalTheme, state.theme === "dark");
   const widget = state.widgets.find((w) => w.id === state.selectedWidgetId);
 
 
@@ -240,8 +240,15 @@ export default function PropertiesPanel() {
             type="number"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             value={widget.value || 0}
-            onChange={(e) => updateWidgetData("value", parseInt(e.target.value))}
+            onChange={(e) => {
+              const newValue = parseInt(e.target.value) || 0;
+              const maxValue = widget.maxValue || 100;
+              // Ensure value doesn't exceed maxValue
+              const clampedValue = Math.min(Math.max(newValue, 0), maxValue);
+              updateWidgetData("value", clampedValue);
+            }}
             min="0"
+            max={widget.maxValue || 100}
           />
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Max Value:
@@ -250,7 +257,15 @@ export default function PropertiesPanel() {
             type="number"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             value={widget.maxValue || 100}
-            onChange={(e) => updateWidgetData("maxValue", parseInt(e.target.value))}
+            onChange={(e) => {
+              const newMaxValue = parseInt(e.target.value) || 1;
+              const clampedMaxValue = Math.max(newMaxValue, 1);
+              updateWidgetData("maxValue", clampedMaxValue);
+              // If current value exceeds new max, adjust it
+              if (widget.value > clampedMaxValue) {
+                updateWidgetData("value", clampedMaxValue);
+              }
+            }}
             min="1"
           />
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -508,8 +523,15 @@ export default function PropertiesPanel() {
             type="number"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             value={widget.value || 0}
-            onChange={(e) => updateWidgetData("value", parseInt(e.target.value))}
+            onChange={(e) => {
+              const newValue = parseInt(e.target.value) || 0;
+              const maxValue = widget.maxValue || 100;
+              // Ensure value doesn't exceed maxValue
+              const clampedValue = Math.min(Math.max(newValue, 0), maxValue);
+              updateWidgetData("value", clampedValue);
+            }}
             min="0"
+            max={widget.maxValue || 100}
           />
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Max Value:
@@ -518,7 +540,15 @@ export default function PropertiesPanel() {
             type="number"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             value={widget.maxValue || 100}
-            onChange={(e) => updateWidgetData("maxValue", parseInt(e.target.value))}
+            onChange={(e) => {
+              const newMaxValue = parseInt(e.target.value) || 1;
+              const clampedMaxValue = Math.max(newMaxValue, 1);
+              updateWidgetData("maxValue", clampedMaxValue);
+              // If current value exceeds new max, adjust it
+              if (widget.value > clampedMaxValue) {
+                updateWidgetData("value", clampedMaxValue);
+              }
+            }}
             min="1"
           />
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -553,11 +583,48 @@ export default function PropertiesPanel() {
             type="url"
             className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             value={widget.videoUrl || ""}
-            onChange={(e) => updateWidgetData("videoUrl", e.target.value)}
-            placeholder="Enter video URL (YouTube embed URL)..."
+            onChange={(e) => {
+              let url = e.target.value;
+              
+              // Clean and process the URL
+              try {
+                if (url.includes('youtube.com/watch?v=')) {
+                  // Extract video ID and remove all additional parameters
+                  const videoId = url.match(/[?&]v=([^&]+)/)?.[1];
+                  if (videoId) {
+                    url = `https://www.youtube.com/embed/${videoId}`;
+                  }
+                } else if (url.includes('youtu.be/')) {
+                  // Extract video ID from short URL
+                  const videoId = url.match(/youtu\.be\/([^?&]+)/)?.[1];
+                  if (videoId) {
+                    url = `https://www.youtube.com/embed/${videoId}`;
+                  }
+                } else if (url.includes('youtube.com/embed/')) {
+                  // Already embed format, just clean additional parameters
+                  const videoId = url.match(/embed\/([^?&]+)/)?.[1];
+                  if (videoId) {
+                    url = `https://www.youtube.com/embed/${videoId}`;
+                  }
+                }
+              } catch (error) {
+                console.error('Error processing video URL:', error);
+              }
+              
+              updateWidgetData("videoUrl", url);
+            }}
+            placeholder="Enter any YouTube video URL..."
           />
           <div className="text-xs text-gray-500 dark:text-gray-400 mb-3 p-2 bg-gray-50 dark:bg-gray-700 rounded">
-            💡 Use YouTube embed URLs (e.g., https://www.youtube.com/embed/VIDEO_ID)
+            💡 <strong>Supported formats:</strong>
+            <br />
+            • Regular YouTube: https://www.youtube.com/watch?v=VIDEO_ID
+            <br />
+            • Short YouTube: https://youtu.be/VIDEO_ID
+            <br />
+            • Embed YouTube: https://www.youtube.com/embed/VIDEO_ID
+            <br />
+            💡 URLs are automatically converted to embed format
           </div>
         </>
       )}
@@ -618,34 +685,7 @@ export default function PropertiesPanel() {
         </>
       )}
 
-      {/* Weather Widget Properties */}
-      {widget.type === "weather" && (
-        <>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Title:
-          </label>
-          <input
-            type="text"
-            className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.title || ""}
-            onChange={(e) => updateWidgetData("title", e.target.value)}
-            placeholder="Enter title..."
-          />
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            City:
-          </label>
-          <input
-            type="text"
-            className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full mb-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            value={widget.city || ""}
-            onChange={(e) => updateWidgetData("city", e.target.value)}
-            placeholder="Enter city name..."
-          />
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-3 p-2 bg-gray-50 dark:bg-gray-700 rounded">
-            💡 Weather data will be displayed here
-          </div>
-        </>
-      )}
+
 
       {/* Toggle Widget Properties */}
       {widget.type === "toggle" && (
@@ -755,7 +795,7 @@ export default function PropertiesPanel() {
         widget.type !== "table" &&
         widget.type !== "button" &&
         widget.type !== "clock" &&
-        widget.type !== "weather" &&
+
         widget.type !== "toggle" &&
         widget.type !== "slider" &&
         widget.type !== "divider" &&

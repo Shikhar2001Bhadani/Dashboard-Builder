@@ -5,7 +5,7 @@ import { getCurrentThemeColors } from "../../utils/themeUtils.js";
 export default function ActiveUsersWidget() {
   const { activeUsersCount } = useActiveUsers();
   const { state } = useDashboard();
-  const themeColors = getCurrentThemeColors(state.seasonalTheme);
+  const themeColors = getCurrentThemeColors(state.seasonalTheme, state.theme === "dark");
 
   return (
     <div 

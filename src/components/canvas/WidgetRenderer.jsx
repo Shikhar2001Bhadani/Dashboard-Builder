@@ -196,7 +196,19 @@ function HeadingWidget({ widget }) {
   };
 
   const headingSize = widget.headingSize || "h2";
-  const HeadingTag = headingSize;
+  
+  // Map heading sizes to appropriate text classes
+  const getHeadingClass = (size) => {
+    switch (size) {
+      case "h1": return "text-4xl";
+      case "h2": return "text-3xl";
+      case "h3": return "text-2xl";
+      case "h4": return "text-xl";
+      case "h5": return "text-lg";
+      case "h6": return "text-base";
+      default: return "text-3xl";
+    }
+  };
 
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full flex items-center justify-center transition-colors duration-300">
@@ -207,13 +219,13 @@ function HeadingWidget({ widget }) {
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           placeholder="Enter heading text"
-          className="w-full text-center bg-transparent text-gray-800 dark:text-gray-200 border-none outline-none focus:ring-0 font-bold text-2xl"
+          className={`w-full text-center bg-transparent text-gray-800 dark:text-gray-200 border-none outline-none focus:ring-0 font-bold ${getHeadingClass(headingSize)}`}
           autoFocus
         />
       ) : (
-        <HeadingTag 
+        <div 
           onClick={handleClick}
-          className="text-gray-800 dark:text-gray-200 text-center font-bold cursor-text"
+          className={`text-gray-800 dark:text-gray-200 text-center font-bold cursor-text ${getHeadingClass(headingSize)}`}
         >
           {localHeading ? (
             localHeading
@@ -222,7 +234,7 @@ function HeadingWidget({ widget }) {
               Click to edit heading
             </span>
           )}
-        </HeadingTag>
+        </div>
       )}
     </div>
   );
@@ -285,12 +297,14 @@ function ToggleWidget({ widget }) {
 
 // Separate component for slider widget to maintain state
 function SliderWidget({ widget }) {
-  const [sliderValue, setSliderValue] = useState(widget.value || 50);
+  const [sliderValue, setSliderValue] = useState(widget.value !== null && widget.value !== undefined ? widget.value : 50);
   const { dispatch } = useDashboard();
   
-  // Sync with widget value when it changes
+  // Sync with widget value when it changes, but only if the widget value is not null/undefined
   useEffect(() => {
-    setSliderValue(widget.value || 50);
+    if (widget.value !== null && widget.value !== undefined) {
+      setSliderValue(widget.value);
+    }
   }, [widget.value]);
 
   const handleSliderChange = (e) => {
@@ -534,8 +548,13 @@ export default function WidgetRenderer({ widget }) {
         </div>
       );
     case "gauge":
-      const percentage = (widget.value / widget.maxValue) * 100;
-      const strokeDasharray = `${percentage}, 100`;
+      // Ensure value doesn't exceed maxValue and handle edge cases
+      const gaugeValue = Math.min(Math.max(widget.value || 0, 0), widget.maxValue || 100);
+      const gaugeMaxValue = Math.max(widget.maxValue || 100, 1); // Ensure maxValue is at least 1
+      const gaugePercentage = Math.min((gaugeValue / gaugeMaxValue) * 100, 100);
+      // Calculate stroke dasharray - when 100%, the circle should be completely filled
+      const strokeLength = (gaugePercentage / 100) * 251.2; // 251.2 is the circumference of the circle (2 * π * 40)
+      const strokeDasharray = `${strokeLength}, 251.2`;
       
       return (
         <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full flex flex-col items-center justify-center transition-colors duration-300">
@@ -570,13 +589,13 @@ export default function WidgetRenderer({ widget }) {
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-xl font-bold text-gray-800 dark:text-gray-200">
-                {Math.round(percentage)}%
+                {Math.round(gaugePercentage)}%
               </span>
             </div>
           </div>
           <div className="mt-2 text-center">
             <span className="text-sm text-gray-600 dark:text-gray-400">
-              {widget.value} / {widget.maxValue}
+              {gaugeValue} / {gaugeMaxValue}
             </span>
           </div>
         </div>
@@ -714,7 +733,7 @@ export default function WidgetRenderer({ widget }) {
       return (
         <div className="w-full h-full flex items-center justify-center p-4">
           <button 
-            className="text-white px-6 py-3 rounded-lg transition-colors duration-200 font-medium shadow-md hover:shadow-lg"
+            className="text-white px-6 py-3 rounded-lg transition-all duration-200 font-medium shadow-md hover:shadow-lg active:scale-95 active:shadow-sm transform"
             style={{ 
               backgroundColor: widget.buttonColor || "#3B82F6",
               filter: widget.buttonColor ? `brightness(1.1)` : undefined
@@ -729,6 +748,13 @@ export default function WidgetRenderer({ widget }) {
                 e.target.style.filter = 'brightness(1.1)';
               }
             }}
+            onClick={(e) => {
+              // Add click animation
+              e.target.style.transform = 'scale(0.95)';
+              setTimeout(() => {
+                e.target.style.transform = 'scale(1)';
+              }, 150);
+            }}
           >
             {widget.content || ""}
           </button>
@@ -737,7 +763,10 @@ export default function WidgetRenderer({ widget }) {
     case "heading":
       return <HeadingWidget widget={widget} />;
     case "progress":
-      const progressPercentage = (widget.value / widget.maxValue) * 100;
+      // Ensure value doesn't exceed maxValue and handle edge cases
+      const progressValue = Math.min(Math.max(widget.value || 0, 0), widget.maxValue || 100);
+      const progressMaxValue = Math.max(widget.maxValue || 100, 1); // Ensure maxValue is at least 1
+      const progressPercentage = Math.min((progressValue / progressMaxValue) * 100, 100);
       return (
         <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full flex flex-col justify-center transition-colors duration-300">
           <h3 className="font-bold text-lg mb-3 text-gray-800 dark:text-gray-200 text-center">
@@ -753,11 +782,47 @@ export default function WidgetRenderer({ widget }) {
             ></div>
           </div>
           <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-            {widget.value} / {widget.maxValue} ({Math.round(progressPercentage)}%)
+            {progressValue} / {progressMaxValue} ({Math.round(progressPercentage)}%)
           </div>
         </div>
       );
     case "video":
+      // Clean and process the video URL
+      const cleanVideoUrl = (url) => {
+        if (!url) return import.meta.env.VITE_DEFAULT_VIDEO_URL || "https://www.youtube.com/embed/dQw4w9WgXcQ";
+        
+        try {
+          // Remove any additional parameters that might cause issues
+          let cleanUrl = url;
+          
+          // Handle different YouTube URL formats
+          if (url.includes('youtube.com/watch?v=')) {
+            const videoId = url.match(/[?&]v=([^&]+)/)?.[1];
+            if (videoId) {
+              cleanUrl = `https://www.youtube.com/embed/${videoId}`;
+            }
+          } else if (url.includes('youtu.be/')) {
+            const videoId = url.match(/youtu\.be\/([^?&]+)/)?.[1];
+            if (videoId) {
+              cleanUrl = `https://www.youtube.com/embed/${videoId}`;
+            }
+          } else if (url.includes('youtube.com/embed/')) {
+            // Already in embed format, just clean any additional parameters
+            const videoId = url.match(/embed\/([^?&]+)/)?.[1];
+            if (videoId) {
+              cleanUrl = `https://www.youtube.com/embed/${videoId}`;
+            }
+          }
+          
+          return cleanUrl;
+        } catch (error) {
+          console.error('Error processing video URL:', error);
+          return import.meta.env.VITE_DEFAULT_VIDEO_URL || "https://www.youtube.com/embed/dQw4w9WgXcQ";
+        }
+      };
+
+      const processedVideoUrl = cleanVideoUrl(widget.videoUrl);
+
       return (
         <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full transition-colors duration-300">
           <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-gray-200">
@@ -765,12 +830,15 @@ export default function WidgetRenderer({ widget }) {
           </h3>
           <div className="flex-1 relative">
             <iframe
-              src={widget.videoUrl || import.meta.env.VITE_DEFAULT_VIDEO_URL || "https://www.youtube.com/embed/dQw4w9WgXcQ"}
+              src={processedVideoUrl}
               title="Video"
               className="w-full h-full rounded"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
+              onError={(e) => {
+                console.error('Video iframe error:', e);
+              }}
             ></iframe>
           </div>
         </div>
@@ -855,23 +923,7 @@ export default function WidgetRenderer({ widget }) {
           <div className="absolute bottom-4 left-4 text-lg">⏰</div>
         </div>
       );
-    case "weather":
-      return (
-        <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-4 h-full transition-colors duration-300">
-          <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-gray-200">
-            {widget.title || ""}
-          </h3>
-          <div className="text-center">
-            <div className="text-4xl mb-2">🌤️</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              {widget.city || "Enter city in properties"}
-            </div>
-            <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-              Weather data will appear here
-            </div>
-          </div>
-        </div>
-      );
+
     case "toggle":
       return <ToggleWidget widget={widget} />;
     case "slider":

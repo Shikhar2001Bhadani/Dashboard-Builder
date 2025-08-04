@@ -12,7 +12,7 @@ export default function Header() {
   const { activeUsersCount } = useActiveUsers();
   const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
-  const themeColors = getCurrentThemeColors(state.seasonalTheme);
+  const themeColors = getCurrentThemeColors(state.seasonalTheme, state.theme === "dark");
 
   const handleLogout = async () => {
     try {

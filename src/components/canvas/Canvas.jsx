@@ -9,7 +9,7 @@ import { getCurrentThemeColors } from "../../utils/themeUtils.js";
 export default function Canvas() {
   const { state, dispatch } = useDashboard();
   const { showNotification } = useNotification();
-  const themeColors = getCurrentThemeColors(state.seasonalTheme);
+  const themeColors = getCurrentThemeColors(state.seasonalTheme, state.theme === "dark");
 
   // Function to check if two rectangles overlap
   const isOverlapping = (rect1, rect2) => {
@@ -151,9 +151,7 @@ export default function Canvas() {
       } else if (type === "clock") {
         defaultWidth = 200;
         defaultHeight = 100;
-      } else if (type === "weather") {
-        defaultWidth = 250;
-        defaultHeight = 150;
+
       } else if (type === "button") {
         defaultWidth = 200;
         defaultHeight = 100;
@@ -511,21 +509,7 @@ export default function Canvas() {
             data: {},
           },
         });
-      } else if (type === "weather") {
-        dispatch({
-          type: "ADD_WIDGET",
-          payload: {
-            id: uuidv4(),
-            type,
-            x: position.x,
-            y: position.y,
-            width: defaultWidth,
-            height: defaultHeight,
-            title: "Weather",
-            city: "",
-            data: {},
-          },
-        });
+
       } else if (type === "toggle") {
         dispatch({
           type: "ADD_WIDGET",
@@ -618,30 +602,32 @@ export default function Canvas() {
 
   return (
     <div className="flex-1 relative flex flex-col h-full">
-      {/* Clear Canvas Button */}
-      <div className="absolute top-4 right-4 z-10">
-        <button
-          onClick={clearCanvas}
-          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg transition-colors duration-200 flex items-center gap-2"
-          title="Clear all widgets from canvas"
-        >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
+      {/* Clear Canvas Button - Only show when widgets exist */}
+      {state.widgets.length > 0 && (
+        <div className="absolute top-4 right-4 z-10">
+          <button
+            onClick={clearCanvas}
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg transition-colors duration-200 flex items-center gap-2"
+            title="Clear all widgets from canvas"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-            />
-          </svg>
-          Clear Canvas
-        </button>
-      </div>
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+            Clear Canvas
+          </button>
+        </div>
+      )}
 
       {/* Scrollable Canvas Area */}
       <div

@@ -7,9 +7,16 @@ export default function ThemeSwitcher() {
   const [showThemeMenu, setShowThemeMenu] = useState(false);
 
   const toggleTheme = () => {
+    const newTheme = state.theme === "light" ? "dark" : "light";
+    
+    // If switching to dark mode, clear seasonal theme
+    if (newTheme === "dark" && state.seasonalTheme) {
+      dispatch({ type: "CLEAR_SEASONAL_THEME" });
+    }
+    
     dispatch({
       type: "SET_THEME",
-      payload: state.theme === "light" ? "dark" : "light",
+      payload: newTheme,
     });
   };
 
@@ -22,6 +29,11 @@ export default function ThemeSwitcher() {
   };
 
   const getCurrentThemeColors = () => {
+    // If in dark mode, don't return seasonal theme colors
+    if (state.theme === "dark") {
+      return null;
+    }
+    
     if (state.seasonalTheme && seasonalThemes[state.seasonalTheme]) {
       return seasonalThemes[state.seasonalTheme].colors;
     }
@@ -53,34 +65,52 @@ export default function ThemeSwitcher() {
       {/* Seasonal Theme Menu */}
       {showThemeMenu && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-3 text-xs text-gray-600 dark:text-gray-300 min-w-[200px]">
-          <div className="font-medium mb-2 text-center">Seasonal Themes</div>
-          <div className="space-y-2">
-            {Object.entries(seasonalThemes).map(([key, theme]) => (
+          {state.theme === "dark" ? (
+            <div className="text-center py-4">
+              <div className="text-lg mb-2">🌙</div>
+              <div className="font-medium mb-1">Dark Mode Active</div>
+              <div className="text-xs opacity-75">
+                Seasonal themes are only available in light mode
+              </div>
               <button
-                key={key}
-                onClick={() => setSeasonalTheme(key)}
-                className={`w-full flex items-center gap-2 p-2 rounded transition-colors duration-200 ${
-                  state.seasonalTheme === key
-                    ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                    : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
+                onClick={() => setShowThemeMenu(false)}
+                className="mt-3 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
               >
-                <span className="text-lg">{theme.icon}</span>
-                <span>{theme.name}</span>
+                Close
               </button>
-            ))}
-          </div>
-          <div className="border-t border-gray-200 dark:border-gray-600 mt-2 pt-2">
-            <button
-              onClick={() => {
-                dispatch({ type: "CLEAR_SEASONAL_THEME" });
-                setShowThemeMenu(false);
-              }}
-              className="w-full text-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-            >
-              Reset to Default
-            </button>
-          </div>
+            </div>
+          ) : (
+            <>
+              <div className="font-medium mb-2 text-center">Seasonal Themes</div>
+              <div className="space-y-2">
+                {Object.entries(seasonalThemes).map(([key, theme]) => (
+                  <button
+                    key={key}
+                    onClick={() => setSeasonalTheme(key)}
+                    className={`w-full flex items-center gap-2 p-2 rounded transition-colors duration-200 ${
+                      state.seasonalTheme === key
+                        ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                        : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    <span className="text-lg">{theme.icon}</span>
+                    <span>{theme.name}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="border-t border-gray-200 dark:border-gray-600 mt-2 pt-2">
+                <button
+                  onClick={() => {
+                    dispatch({ type: "CLEAR_SEASONAL_THEME" });
+                    setShowThemeMenu(false);
+                  }}
+                  className="w-full text-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                >
+                  Reset to Default
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
 
@@ -89,10 +119,17 @@ export default function ThemeSwitcher() {
         {/* Seasonal Theme Button */}
         <button
           onClick={() => setShowThemeMenu(!showThemeMenu)}
-          className="p-3 rounded-full bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-200 border border-gray-200 dark:border-gray-600 hover:scale-105"
-          title="Seasonal Themes"
+          disabled={state.theme === "dark"}
+          className={`p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 border hover:scale-105 ${
+            state.theme === "dark"
+              ? "bg-gray-300 dark:bg-gray-600 cursor-not-allowed opacity-50"
+              : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"
+          }`}
+          title={state.theme === "dark" ? "Seasonal themes only available in light mode" : "Seasonal Themes"}
         >
-          {state.seasonalTheme ? (
+          {state.theme === "dark" ? (
+            <span className="text-lg opacity-50">🌙</span>
+          ) : state.seasonalTheme ? (
             <span className="text-lg">
               {seasonalThemes[state.seasonalTheme]?.icon || "🎨"}
             </span>

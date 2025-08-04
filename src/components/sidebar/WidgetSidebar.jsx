@@ -4,7 +4,7 @@ import { getCurrentThemeColors } from "../../utils/themeUtils.js";
 
 export default function WidgetSidebar() {
   const { state, dispatch } = useDashboard();
-  const themeColors = getCurrentThemeColors(state.seasonalTheme);
+  const themeColors = getCurrentThemeColors(state.seasonalTheme, state.theme === "dark");
 
   // Function to check if two rectangles overlap
   const isOverlapping = (rect1, rect2) => {
@@ -101,9 +101,7 @@ export default function WidgetSidebar() {
     } else if (type === "clock") {
       defaultWidth = 200;
       defaultHeight = 100;
-    } else if (type === "weather") {
-      defaultWidth = 250;
-      defaultHeight = 150;
+
     } else if (type === "button") {
       defaultWidth = 200;
       defaultHeight = 100;
@@ -420,21 +418,7 @@ export default function WidgetSidebar() {
           data: {},
         },
       });
-    } else if (type === "weather") {
-      dispatch({
-        type: "ADD_WIDGET",
-        payload: {
-          id: uuidv4(),
-          type,
-          x: position.x,
-          y: position.y,
-          width: defaultWidth,
-          height: defaultHeight,
-          title: "",
-          city: "",
-          data: {},
-        },
-      });
+
     } else if (type === "button") {
       dispatch({
         type: "ADD_WIDGET",
@@ -650,14 +634,7 @@ export default function WidgetSidebar() {
           >
             Clock
           </button>
-          <button
-            draggable
-            onDragStart={(e) => handleDragStart(e, "weather")}
-            onClick={() => addWidget("weather")}
-            className="w-full bg-cyan-800 text-white p-1 mb-1 rounded hover:bg-cyan-900 transition-colors duration-200 cursor-grab active:cursor-grabbing text-xs"
-          >
-            Weather
-          </button>
+
         </div>
 
         {/* Interactive Widgets */}
