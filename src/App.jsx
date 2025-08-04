@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { DashboardProvider, useDashboard } from "./context/DashboardContext";
+import { ActiveUsersProvider } from "./context/ActiveUsersContext";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -58,10 +59,12 @@ function AppRoutes() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <DashboardProvider>
-                <DashboardPage dashboardId="demo-dashboard" />
-                <ThemedApp />
-              </DashboardProvider>
+              <ActiveUsersProvider>
+                <DashboardProvider>
+                  <DashboardPage dashboardId="demo-dashboard" />
+                  <ThemedApp />
+                </DashboardProvider>
+              </ActiveUsersProvider>
             </ProtectedRoute>
           }
         />

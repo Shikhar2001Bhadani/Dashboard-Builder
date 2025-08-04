@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useDashboard } from "../context/DashboardContext";
+import { useActiveUsers } from "../context/ActiveUsersContext";
 import { logOut } from "../services/firebase";
 import { useNavigate } from "react-router-dom";
 import { getCurrentThemeColors } from "../utils/themeUtils.js";
@@ -8,6 +9,7 @@ import { getCurrentThemeColors } from "../utils/themeUtils.js";
 export default function Header() {
   const { user } = useAuth();
   const { state } = useDashboard();
+  const { activeUsersCount } = useActiveUsers();
   const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
   const themeColors = getCurrentThemeColors(state.seasonalTheme);
@@ -60,6 +62,16 @@ export default function Header() {
                 <span>Saved</span>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Active Users - Center */}
+        <div className="hidden md:flex items-center space-x-2">
+          <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-sm font-medium">
+              {activeUsersCount} {activeUsersCount === 1 ? 'user' : 'users'} online
+            </span>
           </div>
         </div>
 
