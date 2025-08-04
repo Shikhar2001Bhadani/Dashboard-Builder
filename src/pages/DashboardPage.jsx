@@ -3,6 +3,7 @@ import Canvas from "../components/canvas/Canvas";
 import PropertiesPanel from "../components/properties/PropertiesPanel";
 import ThemeSwitcher from "../components/theming/ThemeSwitcher";
 import Header from "../components/Header";
+import Notification from "../components/Notification";
 import { useDashboard } from "../context/DashboardContext";
 import { getCurrentThemeColors } from "../utils/themeUtils.js";
 
@@ -56,6 +57,9 @@ export default function DashboardPage({ dashboardId }) {
       <div className="absolute bottom-4 right-4 z-50">
         <ThemeSwitcher />
       </div>
+
+      {/* Notification Component */}
+      <Notification />
 
       {/* Saving indicator */}
       {state.isSaving && (

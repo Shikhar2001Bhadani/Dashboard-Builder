@@ -1,5 +1,6 @@
 import { Rnd } from "react-rnd";
 import { useDashboard } from "../../context/DashboardContext";
+import { useNotification } from "../../context/NotificationContext";
 import WidgetRenderer from "./WidgetRenderer";
 import { useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -7,6 +8,7 @@ import { getCurrentThemeColors } from "../../utils/themeUtils.js";
 
 export default function Canvas() {
   const { state, dispatch } = useDashboard();
+  const { showNotification } = useNotification();
   const themeColors = getCurrentThemeColors(state.seasonalTheme);
 
   // Function to check if two rectangles overlap
@@ -25,7 +27,7 @@ export default function Canvas() {
     let attempts = 0;
     let currentX = x;
     let currentY = y;
-    const maxAttempts = 100;
+    const maxAttempts = 200; // Increased attempts
 
     while (attempts < maxAttempts) {
       let hasOverlap = false;
@@ -41,26 +43,45 @@ export default function Canvas() {
         return { x: currentX, y: currentY };
       }
 
-      // Try different positions
+      // Try different positions with more spacing
       attempts++;
-      if (attempts % 10 === 0) {
-        // Every 10 attempts, move to a new row
+      if (attempts % 15 === 0) {
+        // Every 15 attempts, move to a new row
         currentX = 50;
-        currentY += 50;
+        currentY += 100; // More vertical spacing
       } else {
-        // Move horizontally
-        currentX += 50;
+        // Move horizontally with more spacing
+        currentX += 100; // More horizontal spacing
       }
 
       newWidget.x = currentX;
       newWidget.y = currentY;
     }
 
-    // If we can't find a non-overlapping position, return the original position
-    return { x, y };
+    // If we can't find a non-overlapping position, try a completely different area
+    return { x: 50, y: Math.max(...state.widgets.map(w => w.y + w.height)) + 50 };
   };
 
   const updateWidget = (id, x, y, w, h) => {
+    // Check for overlaps with other widgets
+    const currentWidget = state.widgets.find(widget => widget.id === id);
+    if (!currentWidget) return;
+
+    const newWidget = { x, y, width: w, height: h };
+    let hasOverlap = false;
+
+    for (const widget of state.widgets) {
+      if (widget.id !== id && isOverlapping(newWidget, widget)) {
+        hasOverlap = true;
+        break;
+      }
+    }
+
+    if (hasOverlap) {
+      showNotification("Cannot overlap widgets! Please move to a different position.", "error", 2000);
+      return; // Don't update if there's an overlap
+    }
+
     dispatch({
       type: "UPDATE_WIDGET",
       payload: { id, data: { x, y, width: w, height: h } },
@@ -152,6 +173,11 @@ export default function Canvas() {
 
       // Find non-overlapping position
       const position = findNonOverlappingPosition(x, y, defaultWidth, defaultHeight);
+      
+      // Check if the position was adjusted due to overlap
+      if (position.x !== x || position.y !== y) {
+        showNotification("Widget moved to avoid overlap with existing widgets.", "warning", 2000);
+      }
 
       if (type === "text") {
         dispatch({

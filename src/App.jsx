@@ -7,6 +7,7 @@ import {
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { DashboardProvider, useDashboard } from "./context/DashboardContext";
 import { ActiveUsersProvider } from "./context/ActiveUsersContext";
+import { NotificationProvider } from "./context/NotificationContext";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -59,12 +60,14 @@ function AppRoutes() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <ActiveUsersProvider>
-                <DashboardProvider>
-                  <DashboardPage dashboardId="demo-dashboard" />
-                  <ThemedApp />
-                </DashboardProvider>
-              </ActiveUsersProvider>
+              <NotificationProvider>
+                <ActiveUsersProvider>
+                  <DashboardProvider>
+                    <DashboardPage dashboardId="demo-dashboard" />
+                    <ThemedApp />
+                  </DashboardProvider>
+                </ActiveUsersProvider>
+              </NotificationProvider>
             </ProtectedRoute>
           }
         />
