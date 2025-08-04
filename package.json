@@ -9,6 +9,14 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
+  "vercel": {
+    "rewrites": [
+      {
+        "source": "/(.*)",
+        "destination": "/index.html"
+      }
+    ]
+  },
   "dependencies": {
     "chart.js": "^4.5.0",
     "firebase": "^12.0.0",
